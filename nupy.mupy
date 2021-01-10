@@ -1,0 +1,64 @@
+
+version:        "0.0.0"
+
+exports:
+  - demo_tmp
+  - demo_logger
+  - demo_configuration
+  - demo_service
+  - demo_network
+
+parts:
+
+  - name:       demo_tmp
+    path:       "demo_tmp.py"
+    uses:       [ tmp ]
+
+  - name:       demo_logger
+    path:       "demo_logger.py"
+    uses:       [ logger ]
+
+  - name:       demo_configuration
+    path:       "demo_configuration.py"
+    uses:       [ tmp, configuration ]
+
+  - name:       demo_service
+    path:       "demo_service.py"
+    uses:       [ tmp, logger, configuration, service ]
+
+  - name:       demo_network
+    path:       "demo_network.py"
+    uses:       [ tmp, logger, configuration, service, network, ipv4 ]
+
+  - name:       nupy
+    path:       "nupy"
+    path+cpy:   "nupy+cpy"
+
+  - name:       tmp
+    path:       "tmp"
+    path+cpy:   "tmp+cpy"
+
+  - name:       logger
+    path:       "logger"
+    path+cpy:   "logger+cpy"
+    uses:       [ logging ]
+
+  - name:       configuration
+    path:       "configuration.py"
+
+  - name:       service
+    path:       "service.py"
+
+  - name:       network
+    path:       "services/network.py"
+
+  - name:       ipv4
+    path:       "ipv4"
+    path+host:  "ipv4+host"
+
+imports:
+
+  - name:       micropython-lib
+    version:    "0.0.0"
+    parts:
+      - name:   logging
