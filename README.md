@@ -16,4 +16,4 @@ _Multi-target application framework for MicroPython_
 * [muPy application builder](https://github.com/nbyoung/muPy)
 * [micropython-lib](https://github.com/micropython/micropython-lib)
 * [MicroPython](https://github.com/micropython/micropython) (optional)
-  * Tested on version 3.4.0
+  * Tested on version 1.13
