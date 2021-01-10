@@ -7,8 +7,13 @@ WARNING = logging.WARNING
 ERROR   = logging.ERROR
 CRITICAL = logging.CRITICAL
 
-def get(label, level=INFO):
-    logging.basicConfig(level=level)
+def set(level=INFO):
+    try:
+        logging.basicConfig(level=level, force=True)
+    except ValueError:
+        logging.basicConfig(level=level)
+
+def get(label):
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
     logger = logging.getLogger(label)

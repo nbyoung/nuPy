@@ -6,6 +6,8 @@ WARNING = logging.WARNING
 ERROR   = logging.ERROR
 CRITICAL = logging.CRITICAL
 
-def get(label, level=INFO):
+def set(level=INFO):
     logging.basicConfig(level=level)
+
+def get(label):
     return logging.getLogger(label)

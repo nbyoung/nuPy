@@ -34,7 +34,8 @@ async def _amain():
 
 def main(level=logger.INFO):
     global log
-    log = logger.get('service', level)
+    logger.set(level=level)
+    log = logger.get('service')
     try:
         asyncio.run(_amain())
     except KeyboardInterrupt:
