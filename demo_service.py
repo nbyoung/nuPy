@@ -16,7 +16,7 @@ class PendulumService(service.Service):
 
     async def loop(self, stopCallback):
         async with self._anchorStatus.setter as setter:
-            self._value = await setter.get('pallet')
+            self._value = setter.get('pallet')
             setter.set('pallet', not self._value)
         await asyncio.sleep(self._period / 2)
 
@@ -34,11 +34,11 @@ class ClockService(service.Service):
 
     async def loop(self, stopCallback):
         async with self._anchorStatus.watcher as watcher:
-            if await watcher.get('pallet'):
+            if watcher.get('pallet'):
                 async with self._clockStatus.setter as setter:
-                    second = await setter.get('second') + 1
-                    minute = await setter.get('minute') + second // 60
-                    hour = await setter.get('hour') + minute // 60
+                    second = setter.get('second') + 1
+                    minute = setter.get('minute') + second // 60
+                    hour = setter.get('hour') + minute // 60
                     second = second % 60
                     setter.set('second', second)
                     minute = minute % 60

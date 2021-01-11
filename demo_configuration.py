@@ -9,14 +9,14 @@ import tmp
 async def consumer(status, name):
     for i in range(5):
         async with status.watcher as watcher:
-            number = await watcher.get('object.subobject.integer')
+            number = watcher.get('object.subobject.integer')
             print('  % 5d %s' % (number, name))
         await asyncio.sleep((number % 5) / 3)
 
 async def producer(status, name, factor):
     for i in range(5):
         async with status.setter as setter:
-            number = await setter.get('object.subobject.integer')
+            number = setter.get('object.subobject.integer')
             product = number * factor
             print('%s: % 5d * %d = % 6d' % (name, number, factor, product))
             setter.set('object.subobject.integer', product)

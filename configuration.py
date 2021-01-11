@@ -71,7 +71,7 @@ class Status:
         async def __aexit__(self, *args):
             self._status._lock.release()
 
-        async def get(self, path):
+        def get(self, path):
             def get(dictionary, path):
                 if -1 < path.find(_DOT):
                     head, tail = path.split(_DOT, 1)

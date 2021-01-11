@@ -17,7 +17,7 @@ class AdminService(service.Service):
 
     async def loop(self, stopCallback):
         async with self._networkStatus.setter as setter:
-            isDHCP = await setter.get('is_dhcp')
+            isDHCP = setter.get('is_dhcp')
             setter.set('is_dhcp', not isDHCP)
         await asyncio.sleep(self._period)
 

@@ -24,14 +24,14 @@ class Service(service.Service):
     async def loop(self, stopCallback):
         async with self._networkStatus.watcher as watcher:
             lan = ipv4.LAN()
-            if await watcher.get('is_dhcp'):
+            if watcher.get('is_dhcp'):
                 await lan.dhcp()
                 print('lan.dhcp')
             else:
-                address = await watcher.get('static.address')
-                netmask = await watcher.get('static.netmask')
-                gateway = await watcher.get('static.gateway')
-                dns = await watcher.get('static.dns')
+                address = watcher.get('static.address')
+                netmask = watcher.get('static.netmask')
+                gateway = watcher.get('static.gateway')
+                dns = watcher.get('static.dns')
                 await lan.static(
                     address, netmask, gateway, dns=dns
                 )
