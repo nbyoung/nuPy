@@ -24,7 +24,7 @@ class JSONStore(Store):
         self._path = path
         self._json = jsonString
         if doReset:
-            self.__dump(json.loads(self._json))
+            self._dump(json.loads(self._json))
         super().__init__(
             json.loads(self._json) if path is None else self._load()
         )
@@ -37,12 +37,12 @@ class JSONStore(Store):
                     return json.load(f)
             except OSError:
                 if tryAgain:
-                    self.__dump(json.loads(self._json))
+                    self._dump(json.loads(self._json))
                     tryAgain = False
                 else:
                     raise StoreNotLoaded(self._path)
 
-    def __dump(self, data):
+    def _dump(self, data):
         if not self._path is None:
             try:
                 with open(self._path, 'w') as f:
@@ -50,8 +50,26 @@ class JSONStore(Store):
             except OSError:
                 raise StoreNotSaved(self._path)
 
-    def _dump(self):
-        self.__dump(self._data)
+    def save(self):
+        self._dump(self._data)
+
+    def get(self, path):
+        def get(dictionary, path):
+            if -1 < path.find(_DOT):
+                head, tail = path.split(_DOT, 1)
+                return get(dictionary[head], tail)
+            else:
+                return dictionary[path]
+        return get(self._data, path)
+
+    def set(self, path, value):
+        def set(dictionary, path, value):
+            if -1 < path.find(_DOT):
+                head, tail = path.split(_DOT, 1)
+                set(dictionary[head], tail, value)
+            else:
+                dictionary[path] = value
+        set(self._data, path, value)
 
 _DOT = '.'
 
@@ -71,15 +89,8 @@ class Status:
         async def __aexit__(self, *args):
             self._status._lock.release()
 
-        def get(self, path):
-            def get(dictionary, path):
-                if -1 < path.find(_DOT):
-                    head, tail = path.split(_DOT, 1)
-                    return get(dictionary[head], tail)
-                else:
-                    return dictionary[path]
-            value = get(self._status._store._data, path)
-            return value
+        def get(self, key):
+            return self._status._store.get(key)
 
     class _Setter(_Getter):
 
@@ -94,22 +105,16 @@ class Status:
 
         async def __aexit__(self, *args):
             if self._dirty:
-                self._status._store._dump()
+                self._status._store.save()
                 self._dirty = False
                 self._status._event.set()
             await super().__aexit__(*args)
 
-        def set(self, path, value):
-            def set(dictionary, path, value):
-                if -1 < path.find(_DOT):
-                    head, tail = path.split(_DOT, 1)
-                    set(dictionary[head], tail, value)
-                else:
-                    dictionary[path] = value
+        def set(self, key, value):
             if self._status._event.is_set():
                 raise StatusNotLockedError
             else:
-                set(self._status._store._data, path, value)
+                self._status._store.set(key, value)
                 self._dirty = True
 
     class _Watcher(_Setter):
