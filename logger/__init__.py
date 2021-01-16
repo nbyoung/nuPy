@@ -9,5 +9,10 @@ CRITICAL = logging.CRITICAL
 def set(level=INFO):
     logging.basicConfig(level=level)
 
+_logger = None
+
 def get(label):
-    return logging.getLogger(label)
+    global _logger
+    if _logger == None:
+        _logger = logging.getLogger(label)
+    return _logger
