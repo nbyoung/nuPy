@@ -11,7 +11,7 @@ def set(level=INFO):
 
 _logger = None
 
-def get(label):
+def get(label=__name__):
     global _logger
     if _logger == None:
         _logger = logging.getLogger(label)
