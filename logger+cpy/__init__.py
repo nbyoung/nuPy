@@ -13,9 +13,14 @@ def set(level=INFO):
     except ValueError:
         logging.basicConfig(level=level)
 
-def get(label):
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
-    logger = logging.getLogger(label)
-    if not logger.hasHandlers(): logger.addHandler(handler)
-    return logger
+_logger = None
+
+def get(label=__name__):
+    global _logger
+    if _logger == None:
+        _logger = logging.getLogger(label)
+        # if not _logger.hasHandlers():
+        #     handler = logging.StreamHandler(sys.stdout)
+        #     handler.setFormatter(logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
+        #     _logger.addHandler(handler)
+    return _logger
