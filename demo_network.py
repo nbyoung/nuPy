@@ -8,17 +8,18 @@ import service
 from services import network
 import tmp
 
-class AdminService(service.Service):
+class OperatingService(service.Service):
 
-    def __init__(self, runner, networkStatus, period=10.0):
-        super().__init__(runner)
+    def __init__(self, networkStatus, period=10.0):
         self._networkStatus = networkStatus
         self._period = period
 
     async def loop(self, stopCallback):
         async with self._networkStatus.setter as setter:
             isDHCP = setter.get('is_dhcp')
-            setter.set('is_dhcp', not isDHCP)
+            isDHCP = not isDHCP
+            setter.set('is_dhcp', isDHCP)
+            log.info('DHCP' if isDHCP else 'Static')
         await asyncio.sleep(self._period)
 
 async def _amain():
@@ -26,16 +27,16 @@ async def _amain():
         networkStatus = network.Status(networkPath)
         stopService, results = await service.Runner(
         ).add(
-            AdminService, networkStatus
+            OperatingService(networkStatus)
         ).add(
-            network.Service, networkStatus
+            network.Service(networkStatus)
         ).run()
         log.info('%s %s', stopService.__class__.__name__, results or '')
 
 def main(level=logger.INFO):
     global log
     logger.set(level=level)
-    log = logger.get('service')
+    log = logger.get('network')
     try:
         asyncio.run(_amain())
     except KeyboardInterrupt:

@@ -17,8 +17,7 @@ def Status(path):
 
 class Service(service.Service):
 
-    def __init__(self, runner, networkStatus):
-        super().__init__(runner)
+    def __init__(self, networkStatus):
         self._networkStatus = networkStatus
 
     async def loop(self, stopCallback):
@@ -26,7 +25,6 @@ class Service(service.Service):
             lan = ipv4.LAN()
             if watcher.get('is_dhcp'):
                 await lan.dhcp()
-                print('lan.dhcp')
             else:
                 address = watcher.get('static.address')
                 netmask = watcher.get('static.netmask')
@@ -35,4 +33,3 @@ class Service(service.Service):
                 await lan.static(
                     address, netmask, gateway, dns=dns
                 )
-                print('lan.static')

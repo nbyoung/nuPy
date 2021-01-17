@@ -14,23 +14,23 @@ from services.modbus import pdu, data
 
 from services import network
 
-class OperationService(service.Service):
+class OperatingService(service.Service):
 
-    def __init__(self, runner, networkStatus, period=10.0):
-        super().__init__(runner)
+    def __init__(self, networkStatus, period=10.0):
         self._networkStatus = networkStatus
         self._period = period
 
     async def loop(self, stopCallback):
         async with self._networkStatus.setter as setter:
             isDHCP = setter.get('is_dhcp')
-            setter.set('is_dhcp', not isDHCP)
+            isDHCP = not isDHCP
+            setter.set('is_dhcp', isDHCP)
+            log.info('DHCP' if isDHCP else 'Static')
         await asyncio.sleep(self._period)
 
 class ProcessService(service.Service):
 
-    def __init__(self, runner, dataStatus):
-        super().__init__(runner)
+    def __init__(self, dataStatus):
         self._dataStatus = dataStatus
 
     async def loop(self, stopCallback):
@@ -45,14 +45,15 @@ async def _amain(port):
         networkStatus = network.Status(networkPath)
         stopService, results = await service.Runner(
         ).add(
-            network.Service, networkStatus
+            network.Service(networkStatus)
         ).add(
-            ModbusTCPService, ModbusTCPHandler(modbusTCPSlave), modbusDataModel.status,
-            port
+            ModbusTCPService(
+                ModbusTCPHandler(modbusTCPSlave), modbusDataModel.status, port
+            )
         ).add(
-            ProcessService, modbusDataModel.status
+            ProcessService(modbusDataModel.status)
         ).add(
-            OperationService, networkStatus
+            OperatingService(networkStatus)
         ).run()
         log.info('%s %s', stopService.__class__.__name__, results or '')
 

@@ -10,19 +10,15 @@ import configuration
 
 class Service:
 
-    def __init__(self, runner):
-        self._runner = runner
-
-    async def _run(self, service):
+    async def _run(self, runner):
         def onStop():
-            self._runner._doRun = False
-            self._runner._stop(service)
-        while self._runner._doRun:
+            runner._doRun = False
+            runner._stop(self)
+        while runner._doRun:
             await self.loop(onStop)
         return await self.onStop()
 
-    async def onStop(self):
-        pass
+    async def onStop(self): raise NotImplementedError
 
 class Runner:
 
@@ -31,13 +27,13 @@ class Runner:
         self._doRun = True
         self._stopService = None
 
-    def add(self, serviceClass, *args, **kwargs):
-        self._services.append(serviceClass(self, *args, **kwargs))
+    def add(self, service):
+        self._services.append(service)
         return self
         
     async def run(self):
         results = await asyncio.gather(
-            *[s._run(s) for s in self._services]
+            *[s._run(self) for s in self._services]
         )
         return self._stopService, results
 

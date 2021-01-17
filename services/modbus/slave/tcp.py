@@ -101,11 +101,10 @@ class Service(service.Service):
 
     _log = logger.get()
 
-    def __init__(self, runner, handler, dataStatus, port=502, ip='0.0.0.0'):
+    def __init__(self, handler, dataStatus, port=502, ip='0.0.0.0'):
         # TODO Bus status:
         # * Event notification
         # * Client instance
-        super().__init__(runner)
         self._handler = handler
         self._dataStatus = dataStatus
         self._value = 0

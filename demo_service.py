@@ -9,8 +9,7 @@ import tmp
 
 class PendulumService(service.Service):
 
-    def __init__(self, runner, anchorStatus, period=1.0):
-        super().__init__(runner)
+    def __init__(self, anchorStatus, period=1.0):
         self._anchorStatus = anchorStatus
         self._period = period
 
@@ -26,8 +25,7 @@ class PendulumService(service.Service):
 
 class ClockService(service.Service):
 
-    def __init__(self, runner, anchorStatus, clockStatus, haltSecond=60):
-        super().__init__(runner)
+    def __init__(self, anchorStatus, clockStatus, haltSecond=60):
         self._anchorStatus = anchorStatus
         self._clockStatus = clockStatus
         self._haltSecond = haltSecond
@@ -71,9 +69,9 @@ async def _amain():
         clockStatus = configuration.Status(configuration.JSONStore(clockPath, clockJSON))
         stopService, results = await service.Runner(
         ).add(
-            PendulumService, anchorStatus
+            PendulumService(anchorStatus)
         ).add(
-            ClockService, anchorStatus, clockStatus, haltSecond=3
+            ClockService(anchorStatus, clockStatus, haltSecond=3)
         ).run()
         log.info('%s %s', stopService.__class__.__name__, results)
 
