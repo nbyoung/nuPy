@@ -1,9 +1,9 @@
-import sys
-
-if sys.implementation.name == 'micropython':
+try:
+    import uarray as array
     import uasyncio as asyncio
     import ujson as json
-else:
+except ImportError:
+    import array
     import asyncio
     import json
 
@@ -11,12 +11,12 @@ class StoreNotLoaded(Exception): pass
 class StoreNotSaved(Exception): pass
 
 class Store:
+    def save(self): raise NotImplementedError
+    def get(self, key): raise NotImplementedError
+    def set(self, key, value): raise NotImplementedError
 
-    def __init__(self, data={}):
-        self._data = data
 
-    def _dump(self): raise NotImplementedError
-
+_DOT = '.'
 
 class JSONStore(Store):
 
@@ -25,9 +25,7 @@ class JSONStore(Store):
         self._json = jsonString
         if doReset:
             self._dump(json.loads(self._json))
-        super().__init__(
-            json.loads(self._json) if path is None else self._load()
-        )
+        self._data = json.loads(self._json) if path is None else self._load()
 
     def _load(self):
         tryAgain = True
@@ -71,7 +69,18 @@ class JSONStore(Store):
                 dictionary[path] = value
         set(self._data, path, value)
 
-_DOT = '.'
+
+class ArrayStore(Store):
+
+    def __init__(self, typecode, iterable=()):
+        self._array = array.array(typecode, iterable)
+
+    def save(self): pass
+    
+    def get(self, key): return self._array[key]
+
+    def set(self, key, value): self._array[key] = value
+
 
 class StatusNotLockedError(Exception): pass
 
@@ -131,6 +140,9 @@ class Status:
         self._getter = Status._Getter(self)
         self._setter = Status._Setter(self)
         self._watcher = Status._Watcher(self)
+
+    @property
+    def store(self): return self._store
 
     @property
     def getter(self): return self._getter

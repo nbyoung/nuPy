@@ -7,6 +7,7 @@ exports:
   - demo_configuration
   - demo_service
   - demo_network
+  - demo_modbus_slave_tcp
 
 parts:
 
@@ -29,6 +30,10 @@ parts:
   - name:       demo_network
     path:       "demo_network.py"
     uses:       [ tmp, logger, configuration, service, network, ipv4 ]
+
+  - name:       demo_modbus_slave_tcp
+    path:       "demo_modbus_slave_tcp.py"
+    uses:       [ tmp, logger, configuration, service, network, ipv4, modbus ]
 
   - name:       nupy
     path:       "nupy"
@@ -55,6 +60,9 @@ parts:
   - name:       ipv4
     path:       "ipv4"
     path+host:  "ipv4+host"
+
+  - name:       modbus
+    path:       "services/modbus"
 
 imports:
 
