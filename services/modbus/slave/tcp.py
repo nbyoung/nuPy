@@ -1,17 +1,12 @@
+try:
+    import uasyncio as asyncio
+except ImportError:
+    import asyncio
 from collections import namedtuple
 import logger
+import select
 import socket
 import struct
-import sys # TODO Eliminate
-
-_IS_MICROPYTHON = sys.implementation.name == 'micropython'
-_IS_MICROPYTHON_LINUX = _IS_MICROPYTHON and (sys.platform == 'linux')
-
-if _IS_MICROPYTHON:
-    import uasyncio as asyncio
-else:
-    import asyncio
-import select
 
 from .. import codes
 from ..pdu import PDU
@@ -101,10 +96,9 @@ class Service(service.Service):
 
     _log = logger.get()
 
+    # TODO busStatus: Control en/disable
+    # TODO clientStatus: Report address, bytes received
     def __init__(self, handler, dataStatus, port=502, ip='0.0.0.0'):
-        # TODO Bus status:
-        # * Event notification
-        # * Client instance
         self._handler = handler
         self._dataStatus = dataStatus
         self._value = 0
@@ -115,8 +109,6 @@ class Service(service.Service):
         self._serverSocket.listen(0)
         self._poll = select.poll()
         self._poll.register(self._serverSocket, select.POLLIN)
-
-    # TODO Respond to changes in network status, e.g., pause, resume
     
     async def loop(self, stopCallback):
         ready = self._poll.poll(0)
@@ -125,17 +117,18 @@ class Service(service.Service):
             if mask != select.POLLIN:
                 raise ServiceError('select.poll() 0x%x' % mask)
             client = Client(*self._serverSocket.accept())
-            if _IS_MICROPYTHON_LINUX:   # TODO Resolve ports/unix dependency
+            address = (
                 # b'\x02\x00\x89L\x7f\x00\x00\X01'
-                address = (
+                # b'\x02\x00\xd2<\xc0\xa8\x01\x0b\x00\x00\x00\x00\x00\x00\x00\x00'
+                (
                     ".".join(
                         [str(byte[0])
                          for byte in struct.unpack('ssss', client.address[4:8])]
                     ),
                     struct.unpack('H', client.address[2:4])[0]
-                )
-            else:
-                address = client.address
+                ) if type(client.address) is bytearray
+                else client.address
+            )
             Service._log.debug(
                 '%s.%s connection from %s via %s' % (
                     __name__, self.__class__.__name__, address, client.socket
