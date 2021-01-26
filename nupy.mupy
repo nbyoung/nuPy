@@ -9,6 +9,7 @@ exports:
   - demo_service
   - demo_network
   - demo_modbus_slave_tcp
+  - demo_microwebsrv2
 
 parts:
 
@@ -45,6 +46,30 @@ parts:
     path:       "demo_modbus_slave_tcp.py"
     uses:       [ tmp, logger, configuration, service, network, ipv4, modbus ]
 
+  - name:       demo_microwebsrv2
+    path:       "demo_microwebsrv2.py"
+    shhell:
+      - cp -a {here}/{origin}_files/www {there}/
+      - |
+        echo "
+        class Server:
+            port = 80
+            root = '/flash/www'
+        "
+      - tee {there}/server.py
+    shhell+host:
+      - cp -a {here}/{origin}_files/www {there}/
+      - |
+        echo "
+        class Server:
+            port = 8000
+            root = 'www'
+        "
+      - tee {there}/server.py
+    uses:       [
+                  tmp, logger, configuration, service, network, ipv4, microwebsrv2,
+                ]
+
   - name:       nupy
     path:       "nupy"
     path+cpy:   "nupy+cpy"
@@ -70,12 +95,41 @@ parts:
   - name:       ipv4
     path:       "ipv4"
     path+host:  "ipv4+host"
+    shhell:
+      - |
+        echo "
+        class IPv4:
+            address='192.168.1.20'
+            netmask = '255.255.255.0'
+            gateway = '192.168.1.1'
+            dns = '8.8.8.8'
+        "
+      - tee {there}/static.py
+    shhell+host:
+      - |
+        echo "
+        class IPv4:
+            address='192.168.1.11'
+            netmask = '255.255.255.0'
+            gateway = '192.168.1.1'
+            dns = '8.8.8.8'
+        "
+      - tee {there}/static.py
+    path+host:  "ipv4+host"
 
   - name:       modbus
     path:       "services/modbus"
+
+  - name:       microwebsrv2
+    path:       "services/microwebsrv2.py"
+    uses:       [ MicroWebSrv2 ]
 
 imports:
 
   - name:       micropython-lib
     parts:
       - name:   logging
+
+  - name:       MicroWebSrv2
+    parts:
+      - name:   MicroWebSrv2

@@ -1,5 +1,6 @@
 import configuration
 import ipv4
+import static
 import service
 
 JSON = """{
@@ -10,7 +11,9 @@ JSON = """{
         "gateway":  "%s",
         "dns":      "%s"
     }
-}""" % (ipv4.LAN.address, ipv4.LAN.netmask, ipv4.LAN.gateway, ipv4.LAN.dns, )
+}""" % (
+    static.IPv4.address, static.IPv4.netmask, static.IPv4.gateway, static.IPv4.dns,
+)
 
 def Status(path):
     return configuration.Status(configuration.JSONStore(path, JSON))

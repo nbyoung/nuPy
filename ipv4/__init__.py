@@ -6,11 +6,6 @@ class LocalAreaNetworkError(ValueError): pass
 
 class LAN:
 
-    address = '192.168.1.20'
-    netmask = '255.255.255.0'
-    gateway = '192.168.1.1'
-    dns = '8.8.8.8'
-
     async def _connect(self, lan, timeout_seconds=5):
         interval = 1
         lan.active(True)

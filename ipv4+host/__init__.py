@@ -1,5 +1,7 @@
 import socket
 
+import static
+
 class _EndPoint:
 
     @property
@@ -34,13 +36,8 @@ class LocalAreaNetworkError(ValueError): pass
 
 class LAN:
 
-    address = '192.168.1.11'
-    netmask = '255.255.255.0'
-    gateway = '192.168.1.1'
-    dns = '8.8.8.8'
-
     def _connect(self, timeout_seconds, dns=None, test=lambda _: True):
-        tcpEndPoint = TCPEndPoint(dns or LAN.dns, 53)
+        tcpEndPoint = TCPEndPoint(dns or static.IPv4.dns, 53)
         client = socket.socket(tcpEndPoint.family, tcpEndPoint.type)
         client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         client.settimeout(timeout_seconds)
