@@ -9,7 +9,7 @@ import service
 import socket
 import struct
 
-from MicroWebSrv2  import *
+from MicroWebSrv2  import MicroWebSrv2
 
 class ServiceError(OSError): pass
 

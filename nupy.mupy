@@ -56,7 +56,7 @@ parts:
             port = 80
             root = '/flash/www'
         "
-      - tee {there}/server.py
+      - tee {there}/web.py
     shhell+host:
       - cp -a {here}/{origin}_files/www {there}/
       - |
@@ -65,7 +65,7 @@ parts:
             port = 8000
             root = 'www'
         "
-      - tee {there}/server.py
+      - tee {there}/web.py
     uses:       [
                   tmp, logger, configuration, service, network, ipv4, microwebsrv2,
                 ]
