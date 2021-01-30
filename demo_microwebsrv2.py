@@ -6,6 +6,7 @@ import configuration
 import logger
 import service
 import tmp
+from _thread       import allocate_lock
 
 from services import network
 from services.microwebsrv2 import Service as MicroWebSrv2Service
@@ -14,6 +15,14 @@ from MicroWebSrv2 import MicroWebSrv2, WebRoute, GET, POST
 import web
 
 class WebServer(web.Server):
+
+    #
+    # Load the PyHTML module and define the static pages
+    #
+
+    pyhtmlMod = MicroWebSrv2.LoadModule('PyhtmlTemplate')
+    pyhtmlMod.ShowDebug = True
+    pyhtmlMod.SetGlobalVar('TestVar', 12345)
 
     @WebRoute(GET, '/test-redir')
     def RequestTestRedirect(microWebSrv2, request) :
@@ -64,19 +73,65 @@ class WebServer(web.Server):
                 MicroWebSrv2.HTMLEscape(lastname) )
         request.Response.ReturnOk(content)
 
-class OperatingService(service.Service):
+    #
+    # Define the WebSockets server and handlers
+    #
 
-    def __init__(self, networkStatus, period=10.0):
-        self._networkStatus = networkStatus
-        self._period = period
+    def OnWebSocketAccepted(microWebSrv2, webSocket) :
+        print('Example WebSocket accepted:')
+        print('   - User   : %s:%s' % webSocket.Request.UserAddress)
+        print('   - Path   : %s'    % webSocket.Request.Path)
+        print('   - Origin : %s'    % webSocket.Request.Origin)
+        if webSocket.Request.Path.lower() == '/wschat' :
+            WebServer.WSJoinChat(webSocket)
+        else :
+            webSocket.OnTextMessage   = WebServer.OnWebSocketTextMsg
+            webSocket.OnBinaryMessage = WebServer.OnWebSocketBinaryMsg
+            webSocket.OnClosed        = WebServer.OnWebSocketClosed
 
-    async def loop(self, stopCallback):
-        async with self._networkStatus.setter as setter:
-            isDHCP = setter.get('is_dhcp')
-            isDHCP = not isDHCP
-            setter.set('is_dhcp', isDHCP)
-            log.info('DHCP' if isDHCP else 'Static')
-        await asyncio.sleep(self._period)
+    def OnWebSocketTextMsg(webSocket, msg) :
+        print('WebSocket text message: %s' % msg)
+        webSocket.SendTextMessage('Received "%s"' % msg)
+
+    def OnWebSocketBinaryMsg(webSocket, msg) :
+        print('WebSocket binary message: %s' % msg)
+
+    def OnWebSocketClosed(webSocket) :
+        print('WebSocket %s:%s closed' % webSocket.Request.UserAddress)
+
+    _chatWebSockets = [ ]
+    _chatLock = allocate_lock()
+
+    def WSJoinChat(webSocket) :
+        webSocket.OnTextMessage = WebServer.OnWSChatTextMsg
+        webSocket.OnClosed      = WebServer.OnWSChatClosed
+        addr = webSocket.Request.UserAddress
+        with WebServer._chatLock :
+            for ws in WebServer._chatWebSockets :
+                ws.SendTextMessage('<%s:%s HAS JOINED THE CHAT>' % addr)
+            WebServer._chatWebSockets.append(webSocket)
+            webSocket.SendTextMessage('<WELCOME %s:%s>' % addr)
+
+    def OnWSChatTextMsg(webSocket, msg) :
+        addr = webSocket.Request.UserAddress
+        with WebServer._chatLock :
+            for ws in WebServer._chatWebSockets :
+                ws.SendTextMessage('<%s:%s> %s' % (addr[0], addr[1], msg))
+
+    def OnWSChatClosed(webSocket) :
+        addr = webSocket.Request.UserAddress
+        with WebServer._chatLock :
+            if webSocket in WebServer._chatWebSockets :
+                WebServer._chatWebSockets.remove(webSocket)
+                for ws in WebServer._chatWebSockets :
+                    ws.SendTextMessage('<%s:%s HAS LEFT THE CHAT>' % addr)
+
+    #
+    # Load the WebSockets module and assign the server
+    #
+
+    wsMod = MicroWebSrv2.LoadModule('WebSockets')
+    wsMod.OnWebSocketAccepted = OnWebSocketAccepted
 
 async def _amain(port):
     with tmp.Path('network.json') as networkPath:
@@ -86,8 +141,6 @@ async def _amain(port):
             network.Service(networkStatus)
         ).add(
             MicroWebSrv2Service(port=WebServer.port, root=WebServer.root)
-        ).add(
-            OperatingService(networkStatus)
         ).run()
         log.info('%s %s', stopService.__class__.__name__, results or '')
 

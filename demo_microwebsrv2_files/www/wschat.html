@@ -47,7 +47,10 @@
                 scheme = 'wss:';
             else
                 scheme = 'ws:';
-            var wsUri           = scheme + '//' + window.location.hostname + '/wschat';
+            var wsUri           = scheme + '//'
+                + window.location.hostname + ':' + window.location.port
+                + '/wschat'
+            ;
             writeLineToChat("Connection to " + wsUri + "...")
             websocket           = new WebSocket(wsUri);
             websocket.onopen    = function(evt) { onOpen    (evt) };
