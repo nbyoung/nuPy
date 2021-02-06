@@ -37,4 +37,4 @@ class Service(service.Service):
         await asyncio.sleep(1)
 
     async def onStop(self):
-        self._mws2.stop()
+        self._mws2.Stop()
