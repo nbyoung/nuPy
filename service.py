@@ -10,6 +10,9 @@ import configuration
 
 class Service:
 
+    async def start(self):
+        pass
+
     async def _run(self, runner):
         def onStop():
             runner._doRun = False
@@ -32,6 +35,9 @@ class Runner:
         return self
         
     async def run(self):
+        await asyncio.gather(
+            *[s.start() for s in self._services]
+        )
         results = await asyncio.gather(
             *[s._run(self) for s in self._services]
         )

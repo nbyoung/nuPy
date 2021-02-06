@@ -23,16 +23,23 @@ class Service(service.Service):
     def __init__(self, networkStatus):
         self._networkStatus = networkStatus
 
+    async def _set(self, getter):
+        lan = ipv4.LAN()
+        if getter.get('is_dhcp'):
+            await lan.dhcp()
+        else:
+            address = getter.get('static.address')
+            netmask = getter.get('static.netmask')
+            gateway = getter.get('static.gateway')
+            dns = getter.get('static.dns')
+            await lan.static(
+                address, netmask, gateway, dns=dns
+            )
+
+    async def start(self):
+        async with self._networkStatus.getter as getter:
+            await self._set(getter)
+
     async def loop(self, stopCallback):
-        async with self._networkStatus.watcher as watcher:
-            lan = ipv4.LAN()
-            if watcher.get('is_dhcp'):
-                await lan.dhcp()
-            else:
-                address = watcher.get('static.address')
-                netmask = watcher.get('static.netmask')
-                gateway = watcher.get('static.gateway')
-                dns = watcher.get('static.dns')
-                await lan.static(
-                    address, netmask, gateway, dns=dns
-                )
+        async with self._networkStatus.watcher as getter:
+            await self._set(getter)
