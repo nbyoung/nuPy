@@ -13,13 +13,18 @@ exports:
 
 parts:
 
+  #
+  # mupy run nupy^demo_shello@ghost --tags +yell
+  #
   - name:       demo_shello
-    #shhell:     # Quiet
-    shell:
+    shlet:      { message: 'Hello, world!' }
+    shlet+yell: { message: 'HELLO, WORLD!' }
+    shhell:     # Quiet
+    #shell:
       - echo "Hello, $USER."
       - echo "Thank you for using `which mupy`."
       - echo "Building {origin}..."
-      - echo "print('Hello, world!')"
+      - echo "print('{message}')"
       - tee {there}/{name}.py
 
   - name:       demo_tmp
@@ -48,31 +53,19 @@ parts:
 
   - name:       demo_microwebsrv2
     path:       "demo_microwebsrv2.py"
+    uses:       [
+                  tmp, logger, configuration, service, network, ipv4, microwebsrv2,
+                ]
+    shlet:      { port: 80, root: '/flash/www' }
+    shlet+host: { port: 8000, root: 'www' }
     shhell:
       - cp -a {here}/{origin}_files/www {there}/
       - |
         echo "
-        class Server:
-            port = 80
-            root = '/flash/www'
+        PORT = {port}
+        ROOT = '{root}'
         "
-      - tee {there}/web.py
-    shhell+host:
-      - cp -a {here}/{origin}_files/www {there}/
-      - |
-        echo "
-        class Server:
-            port = 8000
-            root = 'www'
-        "
-      - tee {there}/web.py
-    uses:       [
-                  tmp, logger, configuration, service, network, ipv4, microwebsrv2,
-                ]
-
-  - name:       nupy
-    path:       "nupy"
-    path+cpy:   "nupy+cpy"
+      - tee {there}/host.py
 
   - name:       tmp
     path:       "tmp"
@@ -95,27 +88,18 @@ parts:
   - name:       ipv4
     path:       "ipv4"
     path+host:  "ipv4+host"
+    shlet:      { address: '192.168.1.20' }
+    shlet+host: { address: '192.168.1.11' }
     shhell:
       - |
         echo "
         class IPv4:
-            address='192.168.1.20'
+            address='{address}'
             netmask = '255.255.255.0'
             gateway = '192.168.1.1'
             dns = '8.8.8.8'
         "
       - tee {there}/static.py
-    shhell+host:
-      - |
-        echo "
-        class IPv4:
-            address='192.168.1.11'
-            netmask = '255.255.255.0'
-            gateway = '192.168.1.1'
-            dns = '8.8.8.8'
-        "
-      - tee {there}/static.py
-    path+host:  "ipv4+host"
 
   - name:       modbus
     path:       "services/modbus"

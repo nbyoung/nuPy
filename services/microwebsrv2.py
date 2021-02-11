@@ -2,12 +2,8 @@ try:
     import uasyncio as asyncio
 except ImportError:
     import asyncio
-from collections import namedtuple
 import logger
-import select
 import service
-import socket
-import struct
 
 from MicroWebSrv2  import MicroWebSrv2
 
@@ -17,7 +13,6 @@ class Service(service.Service):
 
     _log = logger.get()
 
-    # TODO serverStatus: client address, bytes received
     def __init__(self, root='/flash/www', port=80):
         self._mws2 = MicroWebSrv2()
         self._mws2.BindAddress = ('0.0.0.0', port)

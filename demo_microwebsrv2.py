@@ -12,9 +12,9 @@ from services import network
 from services.microwebsrv2 import Service as MicroWebSrv2Service
 from MicroWebSrv2 import MicroWebSrv2, WebRoute, GET, POST
 
-import web
+import host
 
-class WebServer(web.Server):
+class WebServer:
 
     #
     # Load the PyHTML module and define the static pages
@@ -140,7 +140,7 @@ async def _amain(port):
         ).add(
             network.Service(networkStatus)
         ).add(
-            MicroWebSrv2Service(port=WebServer.port, root=WebServer.root)
+            MicroWebSrv2Service(root=host.ROOT, port=host.PORT)
         ).run()
         log.info('%s %s', stopService.__class__.__name__, results or '')
 
