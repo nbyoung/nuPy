@@ -2,7 +2,6 @@ try:
     import uasyncio as asyncio
 except ImportError:
     import asyncio
-import logger
 import service
 
 from MicroWebSrv2  import MicroWebSrv2
@@ -10,8 +9,6 @@ from MicroWebSrv2  import MicroWebSrv2
 class ServiceError(OSError): pass
 
 class Service(service.Service):
-
-    _log = logger.get()
 
     def __init__(self, root='/flash/www', port=80):
         self._mws2 = MicroWebSrv2()
