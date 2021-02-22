@@ -1,0 +1,108 @@
+body {
+  --content-width: 720px;
+}
+
+body.dark {
+  --bg-color: #000;
+  --bg-secondary-color: #262626;
+  --font-color: #f5f5f5;
+  --color-grey: #bbb;
+  --color-darkGrey: #888;
+  --color-primary: #17c16f;
+  --color-error: #ea4f4f;
+}
+
+body > .container {
+  max-width: var(--content-width);
+  line-height: 1.2;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-grey);
+}
+  
+details {
+  padding: 0.5em;
+  border-top: 2px solid var(--color-grey);
+}
+    
+details summary > * {
+  display: inline;
+}
+
+summary {
+  text-align: right;
+}
+
+td,
+th {
+  vertical-align: middle;
+  padding: 0.2rem 0.2rem;
+}
+  
+input {
+  color: var(--font-color);
+  background-color: var(--bg-color);
+  font-family: monospace;
+  font-weight: bold;
+}
+  
+.data {
+  color: var(--font-color);
+  background-color: var(--bg-color);
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+section {
+  margin: 1rem auto;
+}
+
+.button-bar {
+  text-align: right;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.button-bar > .button {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.modal-cancel {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.button > .icon {
+  font-size: 150%;
+  vertical-align: middle;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  }
+
+.modal-content {
+  background-color: var(--bg-color);
+  margin: auto;
+  width: var(--content-width);
+  padding: 20px;
+  border: 4px double var(--color-grey);
+  border-radius: 8px;
+  }

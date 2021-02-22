@@ -135,7 +135,7 @@ class WebServer:
 
 async def _amain(port):
     with tmp.Path('network.json') as networkPath:
-        networkStatus = network.Status(networkPath)
+        networkStatus = configuration.Status(network.JSONStore(networkPath))
         stopService, results = await service.Runner(
         ).add(
             network.Service(networkStatus)

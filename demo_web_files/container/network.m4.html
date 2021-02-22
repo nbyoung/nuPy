@@ -1,0 +1,160 @@
+<fieldset id="network">
+    <div class="modal">
+        <div class="modal-content">
+            <div class="button-bar">
+                <span class="button modal-cancel">❌</span>
+            </div>
+            <fieldset>
+                <legend>
+                    <h3>Network</h3>
+                </legend>
+                <form id="edit-network" >
+                    <table>
+                        <tr>
+                            <td><label for="edit-network-dhcp">DHCP</label></td>
+                            <td>
+                                <input name="edit-network-dhcp" type="radio" id="edit-network-dhcp" />
+                            </td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="edit-network-static">Static</label></td>
+                            <td>
+                                <input name="edit-network-dhcp" type="radio" id="edit-network-static" checked />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td />
+                            <td><label for="edit-network-address">Address</label></td>
+                            <td>
+                                <input name="edit-network-address" type="text" id="edit-network-address" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td />
+                            <td><label for="edit-network-netmask">Netmask</label></td>
+                            <td>
+                                <input name="edit-network-netmask" type="text" id="edit-network-netmask" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td />
+                            <td><label for="edit-network-gateway">Gateway</label></td>
+                            <td>
+                                <input name="edit-network-gateway" type="text" id="edit-network-gateway" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td />
+                            <td><label for="edit-network-dns">DNS</label></td>
+                            <td>
+                                <input name="edit-network-dns" type="text" id="edit-network-dns" />
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="button-bar">
+                        <span class="button success icon modal-okay">✅</span>
+                    </div>
+                </form>
+            </fieldset>
+        </div>
+    </div>
+    <legend>
+        <h3>Network</h3>
+    </legend>
+    <form>
+        <table>
+            <tr>
+                <td width="10%"><label for="network-dhcp">DHCP</label></td>
+                <td width="15%">
+                    <input name="network-dhcp" type="radio" id="network-dhcp" disabled />
+                </td>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="network-static">Static</label></td>
+                <td>
+                    <input name="network-dhcp" type="radio" id="network-static" checked disabled />
+                </td>
+            </tr>
+            <tr>
+                <td />
+                <td>Address</td>
+                <td>
+                    <span class="data" id="network-address">192.168.1.20</span>
+                </td>
+            </tr>
+            <tr>
+                <td />
+                <td>Netmask</td>
+                <td>
+                    <span class="data" id="network-netmask">255.255.255.0</span>
+                </td>
+            </tr>
+            <tr>
+                <td />
+                <td>Gateway</td>
+                <td>
+                    <span class="data" id="network-gateway">192.168.1.1</span>
+                </td>
+            </tr>
+            <tr>
+                <td />
+                <td>DNS</td>
+                <td>
+                    <span class="data" id="network-dns">8.8.8.8</span>
+                </td>
+            </tr>
+        </table>
+        <div class="button-bar" width="100%">
+            <span class="button light" id="edit-network-button"><span class="icon">📝</span>
+        </div>
+    </form>
+</fieldset>
+<script>
+    var network = document.getElementById('network');
+    var modal = network.getElementsByClassName('modal')[0];
+
+    function onGetNetwork(data) {
+        document.getElementById('network-dhcp').checked = data.is_dhcp;
+        document.getElementById('network-address').innerHTML = data.static.address;
+        document.getElementById('network-netmask').innerHTML = data.static.netmask;
+        document.getElementById('network-gateway').innerHTML = data.static.gateway;
+        document.getElementById('network-dns').innerHTML = data.static.dns;
+    };
+
+    document.getElementById('edit-network-button')
+        .addEventListener('click', function (event) {
+            document.getElementById('edit-network-dhcp').checked = document.getElementById('network-dhcp').checked;
+            document.getElementById('edit-network-address').value = document.getElementById('network-address').innerHTML;
+            document.getElementById('edit-network-netmask').value = document.getElementById('network-netmask').innerHTML;
+            document.getElementById('edit-network-gateway').value = document.getElementById('network-gateway').innerHTML;
+            document.getElementById('edit-network-dns').value = document.getElementById('network-dns').innerHTML;
+            modal.style.display = 'block';
+        });
+
+    modal.getElementsByClassName('modal-cancel')[0]
+        .addEventListener('click', function (event) {
+            modal.style.display = 'none';
+        });
+
+    modal.getElementsByClassName('modal-okay')[0]
+        .addEventListener('click', function (event) {
+            modal.style.display = 'none';
+            data = {                                                                                                                                                                       
+                "is_dhcp": document.getElementById('edit-network-dhcp').checked,
+                "static": {
+                    "address": document.getElementById('edit-network-address').value,
+                    "netmask": document.getElementById('edit-network-netmask').value,
+                    "gateway": document.getElementById('edit-network-gateway').value,
+                    "dns": document.getElementById('edit-network-dns').value
+                }
+            };
+            sendXHR('POST', API_PATH + '/network', function (response) {
+                alert(response);
+            },
+                { 'content-type': 'application/json' },
+                data
+            );
+        });
+</script>

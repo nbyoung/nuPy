@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <title>nuPy Web UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="nuchota.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="favicon.ico" />
+  <script type="text/javascript">
+    function sendXHR(method, url, callback, headers, data) {
+      xhr = new XMLHttpRequest() || new window.ActiveXObject("Microsoft.XMLHTTP");
+      xhr.open(method, url, true);
+      for (const header in headers || {}) {
+        xhr.setRequestHeader(header, headers[header]);
+      }
+      xhr.send((data && JSON.stringify(data)) || '');
+      xhr.onreadystatechange = function () {
+        if (this.status === 200 && this.readyState === 4) {
+          callback(this.response);
+        }
+      };
+      return xhr
+    };
+  </script>
+</head>
+
+<body id="top">
+  include(`container.m4.html')
+  <script type="text/javascript">
+
+  function onGetPulse(data) {
+    document.getElementById("pulse-beat").innerHTML = data.is_beat ? "🟢" : "⚪";
+  }
+
+  function initialise() {
+    const ipPattern = "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}";
+    element = document.getElementById("network-dns");
+    element.required = true;
+    element.pattern = ipPattern;
+    element.placeholder = "8.8.8.8";
+  };
+
+  function initialiseAPI(path, callbacks) {
+    function get(name) {
+      sendXHR("GET", path + '/' + name, function (response) {
+        (callbacks[name] || (data => { }))(JSON.parse(response));
+      });
+    }
+    const socketURI = (window.location.protocol == 'https:' ? 'wss' : 'ws:')
+      + '//' + window.location.hostname
+      + ':' + window.location.port;
+    webSocket = new WebSocket(socketURI);
+    webSocket.onopen = event => { };
+    webSocket.onmessage = event => get(event.data);
+    webSocket.onerror = event => { };
+    webSocket.onclose = event => { };
+    for (var name in callbacks) get(name);
+  }
+
+  API_PATH = '/api/v0';
+  window.addEventListener('DOMContentLoaded', (event) => {
+    initialise();
+    initialiseAPI(
+      API_PATH,
+      {
+        pulse: onGetPulse,
+        network: onGetNetwork,
+      }
+    )
+  });
+
+  /* Modals */
+  window.addEventListener('click', function (event) {
+    var modals = document.getElementsByClassName('modal');
+    for (var i = 0; i < modals.length; i++) {
+      if (event.target == modals[i]) {
+        modals[i].style.display = "none";
+      }
+    }
+  });
+
+  /* Dark mode */
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    document.body.classList.add("dark");
+    document.querySelector('#theme-switch').innerHTML = "🌙"
+  }
+
+  function switchMode(el) {
+    const bodyClass = document.body.classList;
+    bodyClass.contains("dark")
+      ? ((el.innerHTML = "☀️"), bodyClass.remove("dark"))
+      : ((el.innerHTML = "🌙"), bodyClass.add("dark"));
+  }
+  </script>
+</body>
+
+</html>

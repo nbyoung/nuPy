@@ -42,7 +42,7 @@ async def _amain(port):
     modbusDataModel = data.Model((1, 2, 3, 4, 5))
     modbusTCPSlave = ModbusTCPSlave(pdu.Handler(modbusDataModel, log.warning))
     with tmp.Path('network.json') as networkPath:
-        networkStatus = network.Status(networkPath)
+        networkStatus = configuration.Status(network.JSONStore(networkPath))
         stopService, results = await service.Runner(
         ).add(
             network.Service(networkStatus)

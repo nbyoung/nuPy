@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="hero is-full-width">
+    <nav class="nav is-full-width is-center" style="position: fixed; left: 0px; bottom: 0px">
+      <span style="width: 2.5em" id="pulse-beat">⚪</span>
+      <a href="#dashboard">📈</a>
+      <a href="#process">🌡</a>
+      <a href="#settings">🔧</a>
+      <a href="javascript:void(0)" id="theme-switch" onclick="switchMode(this)">☀️</a>
+    </nav>
+  </div>
+
+  <section id="dashboard">
+    <details open>
+      <summary>
+        <h1>📈</h1>
+      </summary>
+      <!--
+    <img width="60%" src="linechart.svg"/>
+    <img width="30%" src="piechart.svg"/>
+    -->
+    </details>
+  </section>
+
+  <section id="process">
+    <details open>
+      <summary>
+        <h1>🌡</h1>
+      </summary>
+    </details>
+  </section>
+
+  <section id="settings">
+    <details open>
+      <summary>
+        <h1>🔧</h1>
+      </summary>
+      include(`container/network.m4.html')
+    </details>
+  </section>
+
+</div>

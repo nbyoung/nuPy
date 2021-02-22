@@ -18,6 +18,7 @@ class Store:
 
 _DOT = '.'
 
+
 class JSONStore(Store):
 
     def __init__(self, path=None, jsonString='', doReset=False):
@@ -69,6 +70,26 @@ class JSONStore(Store):
                 dictionary[path] = value
         set(self._data, path, value)
 
+    @property
+    def json(self): return json.dumps(self._data)
+        
+    def updateJSON(self, jsonString):
+        dirty = False
+        def _updateData(toData, fromData):
+            nonlocal dirty
+            # warning: No tuples and no lists of objects
+            for key in toData.keys():
+                if key in fromData and type(fromData[key]) == type(toData[key]):
+                    if isinstance(toData[key], dict):
+                        _updateData(toData[key], fromData[key])
+                    elif type(toData[key]) in (list, int, float, str, bool):
+                        toData[key] = fromData[key]
+                        dirty = True
+                    else:
+                        raise ValueError('Illegal type at %s' % key)
+        _updateData(self._data, json.loads(jsonString))
+        return dirty
+
 
 class ArrayStore(Store):
 
@@ -81,10 +102,22 @@ class ArrayStore(Store):
 
     def set(self, key, value): self._array[key] = value
 
+    @property
+    def json(self):
+        return '[ ' + ', '.join([json.dumps(v) for v in self._data]) + ' ]'
+
 
 class StatusNotLockedError(Exception): pass
 
 class Status:
+
+    class OnSet:
+
+        def __init__(self, callback=lambda argument: None, argument=None):
+            self._callback = callback
+            self._argument = argument
+
+        def call(self): self._callback(self._argument)
 
     class _Getter:
 
@@ -100,6 +133,8 @@ class Status:
 
         def get(self, key):
             return self._status._store.get(key)
+
+        def getJSON(self): return self._status._store.json
 
     class _Setter(_Getter):
 
@@ -117,6 +152,7 @@ class Status:
                 self._status._store.save()
                 self._dirty = False
                 self._status._event.set()
+                self._status._onSet.call()
             await super().__aexit__(*args)
 
         def set(self, key, value):
@@ -126,6 +162,12 @@ class Status:
                 self._status._store.set(key, value)
                 self._dirty = True
 
+        def updateJSON(self, jsonString):
+            if self._status._event.is_set():
+                raise StatusNotLockedError
+            else:
+                self._dirty = self._status._store.updateJSON(jsonString)
+
     class _Watcher(_Setter):
 
         async def __aenter__(self):
@@ -133,13 +175,17 @@ class Status:
             await super().__aenter__()
             return self
 
-    def __init__(self, store):
+    def __init__(self, store, onSet=OnSet()):
+        self._store = store
+        self._onSet = onSet
         self._event = asyncio.Event()
         self._lock = asyncio.Lock()
-        self._store = store
         self._getter = Status._Getter(self)
         self._setter = Status._Setter(self)
         self._watcher = Status._Watcher(self)
+
+    @property
+    def event(self): return self._event
 
     @property
     def store(self): return self._store

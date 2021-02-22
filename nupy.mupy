@@ -1,4 +1,6 @@
 
+# TODO: Implement version selection
+
 version:        "0.0.0"
 
 exports:
@@ -10,15 +12,16 @@ exports:
   - demo_network
   - demo_modbus_slave_tcp
   - demo_microwebsrv2
+  - demo_web
 
 parts:
 
   #
-  # mupy run nupy^demo_shello@ghost --tags +yell
+  # mupy run nupy^demo_shello@ghost --tags +bye
   #
   - name:       demo_shello
     shlet:      { message: 'Hello, world!' }
-    shlet+yell: { message: 'HELLO, WORLD!' }
+    shlet+bye:  { message: 'Later, gator!' }
     shhell:     # Quiet
     #shell:
       - echo "Hello, $USER."
@@ -64,8 +67,26 @@ parts:
         echo "
         PORT = {port}
         ROOT = '{root}'
-        "
-      - tee {there}/host.py
+        " > {there}/host.py
+
+  - name:       demo_web
+    path:       "demo_web.py"
+    uses:       [
+                  tmp, logger, configuration, service, network, ipv4, web,
+                ]
+    shlet:      { port: 80, root: '/flash/www' }
+    shlet+host: { port: 8000, root: 'www' }
+    shell:
+      - mkdir {there}/www
+      - |
+        m4 -I{here}/{origin}_files {here}/{origin}_files/index.m4.html \
+        > {there}/www/index.html
+      - cp -a {here}/{origin}_files/www {there}/
+      - |
+        echo "
+        PORT = {port}
+        ROOT = '{root}'
+        " > {there}/host.py
 
   - name:       tmp
     path:       "tmp"
@@ -98,11 +119,14 @@ parts:
             netmask = '255.255.255.0'
             gateway = '192.168.1.1'
             dns = '8.8.8.8'
-        "
-      - tee {there}/static.py
+        " > {there}/static.py
 
   - name:       modbus
     path:       "services/modbus"
+
+  - name:       web
+    path:       "services/web.py"
+    uses:       [ MicroWebSrv2 ]
 
   - name:       microwebsrv2
     path:       "services/microwebsrv2.py"

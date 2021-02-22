@@ -15,8 +15,10 @@ JSON = """{
     static.IPv4.address, static.IPv4.netmask, static.IPv4.gateway, static.IPv4.dns,
 )
 
-def Status(path):
-    return configuration.Status(configuration.JSONStore(path, JSON))
+class JSONStore(configuration.JSONStore):
+
+    def __init__(self, path):
+        super().__init__(path, JSON)
 
 class Service(service.Service):
 
@@ -36,7 +38,7 @@ class Service(service.Service):
                 address, netmask, gateway, dns=dns
             )
 
-    async def start(self):
+    async def onStart(self):
         async with self._networkStatus.getter as getter:
             await self._set(getter)
 
