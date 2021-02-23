@@ -2,7 +2,7 @@
     <div class="modal">
         <div class="modal-content">
             <div class="button-bar">
-                <span class="button modal-cancel">❌</span>
+                <span class="button modal-cancel" id="cancel-network-button">❌</span>
             </div>
             <fieldset>
                 <legend>
@@ -11,6 +11,9 @@
                 <form id="edit-network" >
                     <table>
                         <tr>
+                            <td width="30%">
+                                <input name="initial-network-dhcp" type="radio" id="initial-network-dhcp" disabled/>
+                            </td>
                             <td><label for="edit-network-dhcp">DHCP</label></td>
                             <td>
                                 <input name="edit-network-dhcp" type="radio" id="edit-network-dhcp" />
@@ -18,12 +21,18 @@
                             </td>
                         </tr>
                         <tr>
+                            <td>
+                                <input name="initial-network-dhcp" type="radio" id="initial-network-static" disabled/>
+                            </td>
                             <td><label for="edit-network-static">Static</label></td>
                             <td>
-                                <input name="edit-network-dhcp" type="radio" id="edit-network-static" checked />
+                                <input name="edit-network-dhcp" type="radio" id="edit-network-static" />
                             </td>
                         </tr>
                         <tr>
+                            <td>
+                                <input name="initial-network-address" type="text" id="initial-network-address" disabled/>
+                            </td>
                             <td />
                             <td><label for="edit-network-address">Address</label></td>
                             <td>
@@ -31,6 +40,9 @@
                             </td>
                         </tr>
                         <tr>
+                            <td>
+                                <input name="initial-network-netmask" type="text" id="initial-network-netmask" disabled/>
+                            </td>
                             <td />
                             <td><label for="edit-network-netmask">Netmask</label></td>
                             <td>
@@ -38,6 +50,9 @@
                             </td>
                         </tr>
                         <tr>
+                            <td>
+                                <input name="initial-network-gateway" type="text" id="initial-network-gateway" disabled/>
+                            </td>
                             <td />
                             <td><label for="edit-network-gateway">Gateway</label></td>
                             <td>
@@ -45,6 +60,9 @@
                             </td>
                         </tr>
                         <tr>
+                            <td>
+                                <input name="initial-network-dns" type="text" id="initial-network-dns" disabled/>
+                            </td>
                             <td />
                             <td><label for="edit-network-dns">DNS</label></td>
                             <td>
@@ -52,9 +70,16 @@
                             </td>
                         </tr>
                     </table>
-                    <div class="button-bar">
-                        <span class="button success icon modal-okay">✅</span>
-                    </div>
+                    <table>
+                        <tr>
+                            <td class="button-bar" style="text-align: left;">
+                                <span class="button light icon modal-initial" id="initial-network-button">⮕</span>
+                            </td>
+                            <td class="button-bar" style="text-align: right;">
+                                <span class="button success icon modal-okay" id="okay-network-button">✅</span>
+                            </td>
+                        </tr>
+                    </table>
                 </form>
             </fieldset>
         </div>
@@ -74,7 +99,7 @@
             <tr>
                 <td><label for="network-static">Static</label></td>
                 <td>
-                    <input name="network-dhcp" type="radio" id="network-static" checked disabled />
+                    <input name="network-dhcp" type="radio" id="network-static" disabled />
                 </td>
             </tr>
             <tr>
@@ -115,8 +140,19 @@
     var network = document.getElementById('network');
     var modal = network.getElementsByClassName('modal')[0];
 
+    function onGetNetworkInitial(data) {
+        console.log(data)
+        document.getElementById('initial-network-dhcp').checked = data.is_dhcp;
+        document.getElementById('initial-network-static').checked = !data.is_dhcp;
+        document.getElementById('initial-network-address').value = data.static.address;
+        document.getElementById('initial-network-netmask').value = data.static.netmask;
+        document.getElementById('initial-network-gateway').value = data.static.gateway;
+        document.getElementById('initial-network-dns').value = data.static.dns;
+    };
+
     function onGetNetwork(data) {
         document.getElementById('network-dhcp').checked = data.is_dhcp;
+        document.getElementById('network-static').checked = !data.is_dhcp;
         document.getElementById('network-address').innerHTML = data.static.address;
         document.getElementById('network-netmask').innerHTML = data.static.netmask;
         document.getElementById('network-gateway').innerHTML = data.static.gateway;
@@ -126,6 +162,7 @@
     document.getElementById('edit-network-button')
         .addEventListener('click', function (event) {
             document.getElementById('edit-network-dhcp').checked = document.getElementById('network-dhcp').checked;
+            document.getElementById('edit-network-static').checked = !document.getElementById('network-dhcp').checked;
             document.getElementById('edit-network-address').value = document.getElementById('network-address').innerHTML;
             document.getElementById('edit-network-netmask').value = document.getElementById('network-netmask').innerHTML;
             document.getElementById('edit-network-gateway').value = document.getElementById('network-gateway').innerHTML;
@@ -133,12 +170,21 @@
             modal.style.display = 'block';
         });
 
-    modal.getElementsByClassName('modal-cancel')[0]
+    document.getElementById('cancel-network-button')
         .addEventListener('click', function (event) {
             modal.style.display = 'none';
         });
 
-    modal.getElementsByClassName('modal-okay')[0]
+    document.getElementById('initial-network-button')
+        .addEventListener('click', function (event) {
+            document.getElementById('edit-network-dhcp').checked = document.getElementById('initial-network-dhcp').checked;
+            document.getElementById('edit-network-address').value = document.getElementById('initial-network-address').value;
+            document.getElementById('edit-network-netmask').value = document.getElementById('initial-network-netmask').value;
+            document.getElementById('edit-network-gateway').value = document.getElementById('initial-network-gateway').value;
+            document.getElementById('edit-network-dns').value = document.getElementById('initial-network-dns').value;
+        });
+
+    document.getElementById('okay-network-button')
         .addEventListener('click', function (event) {
             modal.style.display = 'none';
             data = {                                                                                                                                                                       
@@ -150,9 +196,7 @@
                     "dns": document.getElementById('edit-network-dns').value
                 }
             };
-            sendXHR('POST', API_PATH + '/network', function (response) {
-                alert(response);
-            },
+            sendXHR('POST', API_PATH + '/network', function (response) {},
                 { 'content-type': 'application/json' },
                 data
             );

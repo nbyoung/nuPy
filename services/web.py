@@ -39,7 +39,10 @@ class API:
             async def sendJSON():
                 async with self._status.getter as getter:
                     request.Response.ContentType = 'application/json'
-                    request.Response.ReturnOk(getter.getJSON())
+                    request.Response.ReturnOk(
+                        getter.getInitialJSON() if 'initial' in request.QueryParams
+                        else getter.getJSON()
+                    )
             asyncio.run(sendJSON())
 
         def _post(self, mws2, request):

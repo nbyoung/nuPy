@@ -29,6 +29,7 @@ class Service(service.Service):
         lan = ipv4.LAN()
         if getter.get('is_dhcp'):
             await lan.dhcp()
+            print('DHCP')
         else:
             address = getter.get('static.address')
             netmask = getter.get('static.netmask')
@@ -37,6 +38,7 @@ class Service(service.Service):
             await lan.static(
                 address, netmask, gateway, dns=dns
             )
+            print('Static', address, netmask, gateway, dns)
 
     async def onStart(self):
         async with self._networkStatus.getter as getter:

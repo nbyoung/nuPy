@@ -71,6 +71,9 @@ class JSONStore(Store):
         set(self._data, path, value)
 
     @property
+    def jsonInitial(self): return self._json
+
+    @property
     def json(self): return json.dumps(self._data)
         
     def updateJSON(self, jsonString):
@@ -133,6 +136,8 @@ class Status:
 
         def get(self, key):
             return self._status._store.get(key)
+
+        def getInitialJSON(self): return self._status._store.jsonInitial
 
         def getJSON(self): return self._status._store.json
 

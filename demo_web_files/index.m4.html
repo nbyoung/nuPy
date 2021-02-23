@@ -33,20 +33,20 @@
   <script type="text/javascript">
 
   function onGetPulse(data) {
-    document.getElementById("pulse-beat").innerHTML = data.is_beat ? "🟢" : "⚪";
+    document.getElementById('pulse-beat').innerHTML = data.is_beat ? '🟢' : '⚪';
   }
 
   function initialise() {
-    const ipPattern = "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}";
-    element = document.getElementById("network-dns");
+    const ipPattern = '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}';
+    element = document.getElementById('network-dns');
     element.required = true;
     element.pattern = ipPattern;
-    element.placeholder = "8.8.8.8";
+    element.placeholder = '8.8.8.8';
   };
 
   function initialiseAPI(path, callbacks) {
     function get(name) {
-      sendXHR("GET", path + '/' + name, function (response) {
+      sendXHR('GET', path + '/' + name, function (response) {
         (callbacks[name] || (data => { }))(JSON.parse(response));
       });
     }
@@ -67,8 +67,9 @@
     initialiseAPI(
       API_PATH,
       {
-        pulse: onGetPulse,
-        network: onGetNetwork,
+        'pulse': onGetPulse,
+        'network': onGetNetwork,
+        'network?initial': onGetNetworkInitial,
       }
     )
   });
@@ -78,7 +79,7 @@
     var modals = document.getElementsByClassName('modal');
     for (var i = 0; i < modals.length; i++) {
       if (event.target == modals[i]) {
-        modals[i].style.display = "none";
+        modals[i].style.display = 'none';
       }
     }
   });
@@ -86,17 +87,17 @@
   /* Dark mode */
   if (
     window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
+    window.matchMedia('(prefers-color-scheme: dark)').matches
   ) {
-    document.body.classList.add("dark");
-    document.querySelector('#theme-switch').innerHTML = "🌙"
+    document.body.classList.add('dark');
+    document.querySelector('#theme-switch').innerHTML = '🌙'
   }
 
   function switchMode(el) {
     const bodyClass = document.body.classList;
-    bodyClass.contains("dark")
-      ? ((el.innerHTML = "☀️"), bodyClass.remove("dark"))
-      : ((el.innerHTML = "🌙"), bodyClass.add("dark"));
+    bodyClass.contains('dark')
+      ? ((el.innerHTML = '☀️'), bodyClass.remove('dark'))
+      : ((el.innerHTML = '🌙'), bodyClass.add('dark'));
   }
   </script>
 </body>
