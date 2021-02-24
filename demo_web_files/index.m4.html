@@ -55,7 +55,12 @@
       + ':' + window.location.port;
     webSocket = new WebSocket(socketURI);
     webSocket.onopen = event => { };
-    webSocket.onmessage = event => get(event.data);
+    webSocket.onmessage = event => {
+      get(event.data);
+      // warning: Without reply traffic, the TCP connection drops after a
+      //          timeout, e.g., 300s, so we simply echo the received data
+      webSocket.send(event.data);
+    };
     webSocket.onerror = event => { };
     webSocket.onclose = event => { };
     for (var name in callbacks) get(name);
