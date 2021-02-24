@@ -42,7 +42,9 @@ async def _amain():
         ).add(
             network.Service(networkStatus)
         ).add(
-            web.Service(root=host.ROOT, routeList=routeList, api=api, port=host.PORT)
+            web.Service(
+                log=log, root=host.ROOT, routeList=routeList, api=api, port=host.PORT
+            )
         ).add(
             PulseService(pulseStatus)
         ).run()
@@ -60,5 +62,5 @@ def main(level=logger.INFO):
 def debug():
     main(level=logger.DEBUG)
     
-#main()
-debug()
+main()
+#debug()

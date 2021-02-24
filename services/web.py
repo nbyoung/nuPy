@@ -105,7 +105,7 @@ class Service(service.Service):
 
     # TODO serverStatus: client address, bytes received
 
-    def __init__(self, root='/flash/www', routeList=(), api=API('/api'), port=80):
+    def __init__(self, log, root='/flash/www', routeList=(), api=API('/api'), port=80):
         self._api = api
         for r in routeList:
             RegisterRoute(
@@ -116,6 +116,18 @@ class Service(service.Service):
         self._mws2.BindAddress = ('0.0.0.0', port)
         self._mws2.SetEmbeddedConfig()
         self._mws2.RootPath = root
+        def onLogging(_, message, type):
+            if type == MicroWebSrv2.DEBUG:
+                log.debug(message)
+            elif type == MicroWebSrv2.INFO:
+                log.info(message)
+            elif type == MicroWebSrv2.WARNING:
+                log.warning(message)
+            elif type == MicroWebSrv2.ERROR:
+                log.error(message)
+            else:
+                log.critical(message)
+        self._mws2.OnLogging = onLogging
         HOME = '/'
         if not self._mws2.ResolvePhysicalPath(HOME):
             raise MicroWebSrv2Exception(
