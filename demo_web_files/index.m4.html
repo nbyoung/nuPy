@@ -44,25 +44,30 @@
     element.placeholder = '8.8.8.8';
   };
 
+  webSocket = new WebSocket(
+    (window.location.protocol == 'https:' ? 'wss' : 'ws:')
+    + '//' + window.location.hostname
+    + ':' + window.location.port
+  );
+  webSocket.onopen = event => { };
+  webSocket.onerror = event => { };
+  webSocket.onclose = event => {
+    console.log('webSocket.onclose')
+  };
+
   function initialiseAPI(path, callbacks) {
     function get(name) {
       sendXHR('GET', path + '/' + name, function (response) {
         (callbacks[name] || (data => { }))(JSON.parse(response));
       });
     }
-    const socketURI = (window.location.protocol == 'https:' ? 'wss' : 'ws:')
-      + '//' + window.location.hostname
-      + ':' + window.location.port;
-    webSocket = new WebSocket(socketURI);
-    webSocket.onopen = event => { };
     webSocket.onmessage = event => {
       get(event.data);
       // warning: Without reply traffic, the TCP connection drops after a
       //          timeout, e.g., 300s, so we simply echo the received data
       webSocket.send(event.data);
+      //webSocket.send(new Date().toISOString());
     };
-    webSocket.onerror = event => { };
-    webSocket.onclose = event => { };
     for (var name in callbacks) get(name);
   }
 
@@ -76,7 +81,7 @@
         'network': onGetNetwork,
         'network?initial': onGetNetworkInitial,
       }
-    )
+    );
   });
 
   /* Modals */

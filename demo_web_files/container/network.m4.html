@@ -186,7 +186,6 @@
 
     document.getElementById('okay-network-button')
         .addEventListener('click', function (event) {
-            modal.style.display = 'none';
             data = {                                                                                                                                                                       
                 "is_dhcp": document.getElementById('edit-network-dhcp').checked,
                 "static": {
@@ -196,7 +195,20 @@
                     "dns": document.getElementById('edit-network-dns').value
                 }
             };
-            sendXHR('POST', API_PATH + '/network', function (response) {},
+            // warning: Any change in network settings restarts the server network interface.
+            //          To avoid a connection error, we close the webSocket first.
+            webSocket.close();
+            sendXHR('POST', API_PATH + '/network', function (response) {
+                window.alert('After this change you might\nneed to reload the browser\nwith a new address.');
+                modal.style.display = 'none';
+                setTimeout(function () {
+                    // Then we reload the browser to start again.
+                    // If DHCP, hopefully we get the same address as before,
+                    // otherwise we use the static address.
+                    const hostname = data.is_dhcp ? window.location.hostname : data.static.address;
+                    window.location.replace('http://' + hostname + ':' + window.location.port + '/');
+                }, 2000 /* Enough time for the server interface to restart. */);
+            },
                 { 'content-type': 'application/json' },
                 data
             );
