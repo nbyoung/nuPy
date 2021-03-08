@@ -14,7 +14,7 @@ class OperatingService(service.Service):
         self._networkStatus = networkStatus
         self._period = period
 
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         async with self._networkStatus.setter as setter:
             isDHCP = setter.get('is_dhcp')
             isDHCP = not isDHCP

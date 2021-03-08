@@ -42,6 +42,6 @@ class Service(service.Service):
         async with self._networkStatus.getter as getter:
             await self._set(getter)
 
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         async with self._networkStatus.watcher as getter:
             await self._set(getter)

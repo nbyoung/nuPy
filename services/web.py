@@ -140,7 +140,7 @@ class Service(service.Service):
     @property
     def microwebsrv2(self): return self._mws2
     
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         if not self._mws2.IsRunning: stopCallback()
         await asyncio.sleep(1)
 

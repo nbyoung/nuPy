@@ -24,7 +24,7 @@ class Service(service.Service):
         self._mws2.NotFoundURL = HOME
         self._mws2.StartManaged()
     
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         if not self._mws2.IsRunning: stopCallback()
         await asyncio.sleep(1)
 

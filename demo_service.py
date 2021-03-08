@@ -13,7 +13,7 @@ class PendulumService(service.Service):
         self._anchorStatus = anchorStatus
         self._period = period
 
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         async with self._anchorStatus.setter as setter:
             self._value = setter.get('pallet')
             setter.set('pallet', not self._value)
@@ -30,7 +30,7 @@ class ClockService(service.Service):
         self._clockStatus = clockStatus
         self._haltSecond = haltSecond
 
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         async with self._anchorStatus.watcher as watcher:
             if watcher.get('pallet'):
                 async with self._clockStatus.setter as setter:

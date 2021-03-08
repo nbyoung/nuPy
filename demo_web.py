@@ -18,7 +18,7 @@ class PulseService(service.Service):
         self._pulseStatus = pulseStatus
         self._period = period
 
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         async with self._pulseStatus.setter as setter:
             isBeat = setter.get('is_beat')
             setter.set('is_beat', not isBeat)

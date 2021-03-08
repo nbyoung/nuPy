@@ -110,7 +110,7 @@ class Service(service.Service):
         self._poll = select.poll()
         self._poll.register(self._serverSocket, select.POLLIN)
     
-    async def loop(self, stopCallback):
+    async def onLoop(self, stopCallback):
         ready = self._poll.poll(0)
         if 0 < len(ready):
             (_, mask) = ready[0]

@@ -18,7 +18,7 @@ class Service:
             runner._doRun = False
             runner._stop(self)
         while runner._doRun:
-            await self.loop(onStop)
+            await self.onLoop(onStop)
         return await self.onStop()
 
     async def onStop(self):
