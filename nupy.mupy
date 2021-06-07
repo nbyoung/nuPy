@@ -10,7 +10,7 @@ exports:
   - demo_configuration
   - demo_service
   - demo_network
-  - demo_modbus_slave_tcp
+  - demo_modbus_tcp_slave
   - demo_microwebsrv2
   - demo_web
 
@@ -50,8 +50,8 @@ parts:
     path:       "demo_network.py"
     uses:       [ tmp, logger, configuration, service, network, ipv4 ]
 
-  - name:       demo_modbus_slave_tcp
-    path:       "demo_modbus_slave_tcp.py"
+  - name:       demo_modbus_tcp_slave
+    path:       "demo_modbus_tcp_slave.py"
     uses:       [ tmp, logger, configuration, service, network, ipv4, modbus ]
 
   - name:       demo_microwebsrv2

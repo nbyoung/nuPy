@@ -7,11 +7,8 @@ import logger
 import service
 import tmp
 
-from services.modbus.slave.tcp import Service as ModbusTCPService
-from services.modbus.slave.tcp import Slave as ModbusTCPSlave
-from services.modbus.slave.tcp import Handler as ModbusTCPHandler
-from services.modbus import pdu, data
-
+from services import modbus
+from services.modbus import data, pdu, tcp, slave, TCPSlaveService
 from services import network
 
 class OperatingService(service.Service):
@@ -39,16 +36,16 @@ class ProcessService(service.Service):
             log.info('register[0]=%d', value0)
 
 async def _amain(port):
-    modbusDataModel = data.Model((1, 2, 3, 4, 5))
-    modbusTCPSlave = ModbusTCPSlave(pdu.Handler(modbusDataModel, log.warning))
+    modbusDataModel = modbus.data.Model((1, 2, 3, 4, 5))
+    modbusTCPSlave = modbus.Slave(modbus.pdu.Handler(modbusDataModel, log.warning))
     with tmp.Path('network.json') as networkPath:
         networkStatus = configuration.Status(network.JSONStore(networkPath))
         stopService, results = await service.Runner(
         ).add(
             network.Service(networkStatus)
         ).add(
-            ModbusTCPService(
-                ModbusTCPHandler(modbusTCPSlave), modbusDataModel.status, port
+            modbus.TCPSlaveService(
+                modbus.slave.Handler(modbus.tcp.ADU, modbusTCPSlave), modbusDataModel.status, port
             )
         ).add(
             ProcessService(modbusDataModel.status)
