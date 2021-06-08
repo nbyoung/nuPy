@@ -7,18 +7,18 @@ import logger
 import service
 import tmp
 
-from services import modbus
-from services.modbus import data, pdu, tcp, slave, TCPSlaveService
-from services import network
+import modbus
+from modbus import data, pdu, tcp, slave, TCPSlaveService
+import lan
 
 class OperatingService(service.Service):
 
-    def __init__(self, networkStatus, period=10.0):
-        self._networkStatus = networkStatus
+    def __init__(self, lanStatus, period=10.0):
+        self._lanStatus = lanStatus
         self._period = period
 
     async def onLoop(self, stopCallback):
-        async with self._networkStatus.setter as setter:
+        async with self._lanStatus.setter as setter:
             isDHCP = setter.get('is_dhcp')
             isDHCP = not isDHCP
             setter.set('is_dhcp', isDHCP)
@@ -38,11 +38,11 @@ class ProcessService(service.Service):
 async def _amain(port):
     modbusDataModel = modbus.data.Model((1, 2, 3, 4, 5))
     modbusTCPSlave = modbus.Slave(modbus.pdu.Handler(modbusDataModel, log.warning))
-    with tmp.Path('network.json') as networkPath:
-        networkStatus = configuration.Status(network.JSONStore(networkPath))
+    with tmp.Path('lan.json') as lanPath:
+        lanStatus = configuration.Status(lan.JSONStore(lanPath))
         stopService, results = await service.Runner(
         ).add(
-            network.Service(networkStatus)
+            lan.Service(lanStatus)
         ).add(
             modbus.TCPSlaveService(
                 modbus.slave.Handler(modbus.tcp.ADU, modbusTCPSlave), modbusDataModel.status, port
@@ -50,7 +50,7 @@ async def _amain(port):
         ).add(
             ProcessService(modbusDataModel.status)
         ).add(
-            OperatingService(networkStatus)
+            OperatingService(lanStatus)
         ).run()
         log.info('%s %s', stopService.__class__.__name__, results or '')
 

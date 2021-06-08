@@ -7,8 +7,8 @@ import logger
 import service
 import tmp
 
-from services import network
-from services import web
+import lan
+import web
 
 import host
 
@@ -25,10 +25,10 @@ class PulseService(service.Service):
         await asyncio.sleep(self._period / 2)
 
 async def _amain():
-    with tmp.Path('network.json') as networkPath:
+    with tmp.Path('lan.json') as lanPath:
         api = web.API('/api/v0')
-        networkStatus = api.add(
-            'network', network.JSONStore(networkPath)
+        lanStatus = api.add(
+            'network', lan.JSONStore(lanPath)
         )
         pulseStatus = api.add(
             'pulse', JSONStore(None, '{ "is_beat": false }')
@@ -40,7 +40,7 @@ async def _amain():
         )
         stopService, results = await service.Runner(
         ).add(
-            network.Service(networkStatus)
+            lan.Service(lanStatus)
         ).add(
             web.Service(
                 log=log, root=host.ROOT, routeList=routeList, api=api, port=host.PORT

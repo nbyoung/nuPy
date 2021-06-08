@@ -8,8 +8,8 @@ import service
 import tmp
 from _thread       import allocate_lock
 
-from services import network
-from services.microwebsrv2 import Service as MicroWebSrv2Service
+import lan
+from mws2 import Service as MicroWebSrv2Service
 from MicroWebSrv2 import MicroWebSrv2, WebRoute, GET, POST
 
 import host
@@ -134,11 +134,11 @@ class WebServer:
     wsMod.OnWebSocketAccepted = OnWebSocketAccepted
 
 async def _amain(port):
-    with tmp.Path('network.json') as networkPath:
-        networkStatus = configuration.Status(network.JSONStore(networkPath))
+    with tmp.Path('lan.json') as lanPath:
+        lanStatus = configuration.Status(lan.JSONStore(lanPath))
         stopService, results = await service.Runner(
         ).add(
-            network.Service(networkStatus)
+            lan.Service(lanStatus)
         ).add(
             MicroWebSrv2Service(root=host.ROOT, port=host.PORT)
         ).run()

@@ -4,7 +4,7 @@ except ImportError:
     import asyncio
 import service
 
-from MicroWebSrv2  import MicroWebSrv2
+from MicroWebSrv2 import MicroWebSrv2, MicroWebSrv2Exception
 
 class ServiceError(OSError): pass
 

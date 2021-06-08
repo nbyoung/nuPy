@@ -9,9 +9,9 @@ exports:
   - demo_logger
   - demo_configuration
   - demo_service
-  - demo_network
+  - demo_lan
   - demo_modbus_tcp_slave
-  - demo_microwebsrv2
+  - demo_mws2
   - demo_web
 
 parts:
@@ -46,18 +46,18 @@ parts:
     path:       "demo_service.py"
     uses:       [ tmp, logger, configuration, service ]
 
-  - name:       demo_network
-    path:       "demo_network.py"
-    uses:       [ tmp, logger, configuration, service, network, ipv4 ]
+  - name:       demo_lan
+    path:       "demo_lan.py"
+    uses:       [ tmp, logger, configuration, service, lan, ipv4 ]
 
   - name:       demo_modbus_tcp_slave
     path:       "demo_modbus_tcp_slave.py"
-    uses:       [ tmp, logger, configuration, service, network, ipv4, modbus ]
+    uses:       [ tmp, logger, configuration, service, lan, ipv4, modbus ]
 
-  - name:       demo_microwebsrv2
-    path:       "demo_microwebsrv2.py"
+  - name:       demo_mws2
+    path:       "demo_mws2.py"
     uses:       [
-                  tmp, logger, configuration, service, network, ipv4, microwebsrv2,
+                  tmp, logger, configuration, service, lan, ipv4, mws2,
                 ]
     shlet:      { port: 80, root: '/flash/www' }
     shlet+host: { port: 8000, root: 'www' }
@@ -72,7 +72,7 @@ parts:
   - name:       demo_web
     path:       "demo_web.py"
     uses:       [
-                  tmp, logger, configuration, service, network, ipv4, web,
+                  tmp, logger, configuration, service, lan, ipv4, web,
                 ]
     shlet:      { port: 80, root: '/flash/www' }
     shlet+host: { port: 8000, root: 'www' }
@@ -103,8 +103,8 @@ parts:
   - name:       service
     path:       "service.py"
 
-  - name:       network
-    path:       "services/network.py"
+  - name:       lan
+    path:       "lan.py"
 
   - name:       ipv4
     path:       "ipv4"
@@ -122,14 +122,14 @@ parts:
         " > {there}/static.py
 
   - name:       modbus
-    path:       "services/modbus"
+    path:       "modbus"
 
   - name:       web
-    path:       "services/web.py"
+    path:       "web.py"
     uses:       [ MicroWebSrv2 ]
 
-  - name:       microwebsrv2
-    path:       "services/microwebsrv2.py"
+  - name:       mws2
+    path:       "mws2.py"
     uses:       [ MicroWebSrv2 ]
 
 imports:
