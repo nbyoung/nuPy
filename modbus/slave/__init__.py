@@ -17,7 +17,7 @@ class Handler:
                         codes.Exception.GatewayTargetFailedToRespond
                 )
             )
-        ).bytes
+        ).toBytes()
 
     @property
     def size(self): return self._aduClass.MAX

@@ -23,8 +23,7 @@ class ADU:
         self._function = function
         self._bytes = bytes
 
-    @property
-    def bytes(self):
+    def toBytes(self):
         length = len(self._bytes) + struct.calcsize('BB')
         return struct.pack(
             ADU._format,
