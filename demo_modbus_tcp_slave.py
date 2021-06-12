@@ -8,7 +8,7 @@ import service
 import tmp
 
 import modbus
-from modbus import data, pdu, tcp, slave, TCPSlaveService
+from modbus import data, pdu, tcp, slave
 import lan
 
 class OperatingService(service.Service):
@@ -36,19 +36,17 @@ class ProcessService(service.Service):
             log.info('register[0]=%d', value0)
 
 async def _amain(port):
-    modbusDataModel = modbus.data.Model((1, 2, 3, 4, 5))
-    modbusTCPSlave = modbus.Slave(modbus.pdu.RequestHandler(modbusDataModel, log.warning))
+    dataModel = data.Model((1, 2, 3, 4, 5))
+    slave_ = slave.Slave(pdu.RequestHandler(dataModel, log.warning))
     with tmp.Path('lan.json') as lanPath:
         lanStatus = configuration.Status(lan.JSONStore(lanPath))
         stopService, results = await service.Runner(
         ).add(
             lan.Service(lanStatus)
         ).add(
-            modbus.TCPSlaveService(
-                modbus.slave.Handler(modbus.tcp.ADU, modbusTCPSlave), modbusDataModel.status, port
-            )
+            tcp.SlaveService(slave.Handler(tcp.ADU, slave_), dataModel.status, port)
         ).add(
-            ProcessService(modbusDataModel.status)
+            ProcessService(dataModel.status)
         ).add(
             OperatingService(lanStatus)
         ).run()
