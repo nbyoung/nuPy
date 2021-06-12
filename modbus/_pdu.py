@@ -20,7 +20,7 @@ class PDU:
 
 class IllegalFunction(Exception): code = codes.Exception.IllegalFunction
 
-class Handler:
+class RequestHandler:
 
     @staticmethod
     def _exceptionPDU(exceptionCode, functionCode):
@@ -91,12 +91,12 @@ class Handler:
                 'Function code=%d %s not implemented',
                 pdu.functionCode, str(exception)
             )
-            return Handler._exceptionPDU(pdu.functionCode, exception.code)
+            return RequestHandler._exceptionPDU(pdu.functionCode, exception.code)
         except _data.IllegalDataAddress as exception:
             self._logCallback(
                 'Function code=%d %s', pdu.functionCode, str(exception)
             )
-            return Handler._exceptionPDU(pdu.functionCode, exception.code)
+            return RequestHandler._exceptionPDU(pdu.functionCode, exception.code)
 
     async def ReadMultipleHoldingRegisters(self, dataModel, fromRegion):
         raise IllegalFunction("ReadMultipleHoldingRegisters")

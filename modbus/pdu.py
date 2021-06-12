@@ -4,7 +4,7 @@ from . import _pdu
 
 class PDU(_pdu.PDU): pass
 
-class Handler(_pdu.Handler):
+class RequestHandler(_pdu.RequestHandler):
 
     def __init__(self, dataModel, logCallback=lambda _: None):
         super().__init__(dataModel, logCallback)

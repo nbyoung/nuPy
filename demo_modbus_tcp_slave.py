@@ -37,7 +37,7 @@ class ProcessService(service.Service):
 
 async def _amain(port):
     modbusDataModel = modbus.data.Model((1, 2, 3, 4, 5))
-    modbusTCPSlave = modbus.Slave(modbus.pdu.Handler(modbusDataModel, log.warning))
+    modbusTCPSlave = modbus.Slave(modbus.pdu.RequestHandler(modbusDataModel, log.warning))
     with tmp.Path('lan.json') as lanPath:
         lanStatus = configuration.Status(lan.JSONStore(lanPath))
         stopService, results = await service.Runner(
