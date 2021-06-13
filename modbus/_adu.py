@@ -1,7 +1,7 @@
 
 from .pdu import PDU
 
-class _ADU:
+class ADU:
 
     def __init__(self, address, function, pduBytes):
         self._address = address

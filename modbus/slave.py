@@ -1,3 +1,4 @@
+from . import codes
 
 class Slave:
 
@@ -14,7 +15,7 @@ class Slave:
 class Handler:
 
     def __init__(self, aduClass, localSlave):
-        # TODO Generalise to remote slaves as well as localSlave
+        # TODO Generalise to configured remote slaves as well as localSlave
         self._aduClass = aduClass
         self._localSlave = localSlave
 
@@ -24,7 +25,6 @@ class Handler:
             (
                 await self._localSlave.pduHandler.handle(adu.pdu)
                 if adu.address in self._localSlave.addresses
-                # TODO Enable remote target access through configuration
                 else adu.pdu.exception(
                         codes.Exception.GatewayTargetFailedToRespond
                 )

@@ -15,8 +15,8 @@ class PDU:
         self._functionCode = functionCode
         self._bytes = bytes
 
-    def exception(self, code): # Move to Transcoder
-        return 
+    def exception(self, code):
+        return PDU(self._functionCode + codes.Exception.Mask, struct.pack('>B', code))
 
 class IllegalFunction(Exception): code = codes.Exception.IllegalFunction
 

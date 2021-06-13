@@ -12,7 +12,7 @@ import service
 
 from . import _adu
 
-class ADU(_adu._ADU):
+class ADU(_adu.ADU):
 
     _format     = '>HHHBB'
     MAX         = 260

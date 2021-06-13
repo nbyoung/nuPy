@@ -2,7 +2,7 @@
 
 from . import _adu
 
-class ADU(_adu._ADU):
+class ADU(_adu.ADU):
 
     _head       = '>BB'
     _crc        = '>H'

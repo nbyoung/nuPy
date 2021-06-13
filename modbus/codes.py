@@ -55,7 +55,7 @@ class Exception:
     IllegalFunction                     = 0x01  #  1
     IllegalDataAddress                  = 0x02  #  2
     IllegalDataValue                    = 0x03  #  3
-    SlaveDeviceFailure                  = 0x04  #  4
+    ServerDeviceFailure                 = 0x04  #  4
     Acknowledge                         = 0x05  #  5
     ServerDeviceBusy                    = 0x06  #  6
     NegativeAcknowledge                 = 0x07  #  7
