@@ -18,24 +18,18 @@ class RequestHandler(_pdu.RequestHandler):
                   for i in range(fromRegion.count)]
             )
 
-    async def WriteSingleHoldingRegister(
-            self, toAddress, value
-    ):
+    async def WriteSingleHoldingRegister(self, toAddress, value):
         async with self._dataModel.status.setter as setter:
             self._dataModel.holdingWrite(setter, toAddress, value)
             return struct.pack('>HH', toAddress, value)
 
-    async def WriteMultipleHoldingRegisters(
-            self, toRegion, values
-    ):
+    async def WriteMultipleHoldingRegisters(self, toRegion, values):
         async with self._dataModel.status.setter as setter:
             for i in range(toRegion.count):
                 self._dataModel.holdingWrite(setter, toRegion.address + i, values[i])
             return struct.pack('>HH', toRegion.address, toRegion.count)
 
-    async def ReadWriteMultipleRegisters(
-            self, fromRegion, toRegion, values
-    ):
+    async def ReadWriteMultipleRegisters(self, fromRegion, toRegion, values):
         async with self._dataModel.status.setter as setter:
             for i in range(toRegion.count):
                 self._dataModel.holdingWrite(setter, toRegion.address + i, values[i])
