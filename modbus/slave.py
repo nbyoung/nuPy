@@ -18,8 +18,8 @@ class Handler:
         self._aduClass = aduClass
         self._localSlave = localSlave
 
-    async def handle(self, bytes):
-        adu = self._aduClass.fromBytes(bytes)
+    async def handle(self, bytes_):
+        adu = self._aduClass.fromBytes(bytes_)
         return adu.reply(
             (
                 await self._localSlave.pduHandler.handle(adu.pdu)

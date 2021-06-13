@@ -92,13 +92,10 @@ class SlaveService(service.Service):
             )
             while True:
                 await asyncio.sleep(0)
-                bytes = client.socket.recv(self._handler.size)
-                if bytes:
-                    try:
-                        if not client.socket.send(await self._handler.handle(bytes)):
-                            break
-                    except CRCError as error:
-                        SlaveService._log.warning(str(error)) # TODO Handle CRC error
+                bytes_ = client.socket.recv(self._handler.size)
+                if bytes_:
+                    if not client.socket.send(await self._handler.handle(bytes_)):
+                        break
                 else:
                     break
             client.socket.close()
