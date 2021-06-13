@@ -11,9 +11,9 @@ class PDU:
     @property
     def bytes(self): return self._bytes
     
-    def __init__(self, functionCode, bytes=b''):
+    def __init__(self, functionCode, bytes_=b''):
         self._functionCode = functionCode
-        self._bytes = bytes
+        self._bytes = bytes_
 
     def exception(self, code):
         return PDU(self._functionCode + codes.Exception.Mask, struct.pack('>B', code))
@@ -41,9 +41,7 @@ class RequestHandler:
                     *struct.unpack('>HH', pdu.bytes), max=125
                 )
                 self._dataModel.holdingBlock.validRegion(fromRegion)
-                bytes = await self.ReadMultipleHoldingRegisters(
-                    self._dataModel, fromRegion
-                )
+                bytes_ = await self.ReadMultipleHoldingRegisters(fromRegion)
             elif code == codes.Function.WriteSingleHoldingRegister:
                 format = '>HH'
                 toAddress, value = struct.unpack(
@@ -52,9 +50,7 @@ class RequestHandler:
                 self._dataModel.holdingBlock.validRegion(
                     _data.Region(toAddress, 1, 1)
                 )
-                bytes = await self.WriteSingleHoldingRegister(
-                    self._dataModel, toAddress, value
-                )
+                bytes_ = await self.WriteSingleHoldingRegister(toAddress, value)
             elif code == codes.Function.WriteMultipleHoldingRegisters:
                 format = '>HHB'
                 toAddress, toCount, byteCount = struct.unpack(
@@ -65,9 +61,7 @@ class RequestHandler:
                 values = tuple(struct.unpack(
                     '>%dH' % toCount, pdu.bytes[struct.calcsize(format):]
                 ))
-                bytes = await self.WriteMultipleHoldingRegisters(
-                    self._dataModel, toRegion, values
-                )
+                bytes_ = await self.WriteMultipleHoldingRegisters(toRegion, values)
             elif code == codes.Function.ReadWriteMultipleRegisters:
                 format = '>HHHHB'
                 (
@@ -80,12 +74,12 @@ class RequestHandler:
                 values = tuple(struct.unpack(
                     '>%dH' % toCount, pdu.bytes[struct.calcsize(format):]
                 ))
-                bytes = await self.ReadWriteMultipleRegisters(
-                    self._dataModel, fromRegion, toRegion, values
+                bytes_ = await self.ReadWriteMultipleRegisters(
+                    fromRegion, toRegion, values
                 )
             else:
                 raise IllegalFunction()
-            return PDU(code, bytes)
+            return PDU(code, bytes_)
         except IllegalFunction as exception:
             self._logCallback(
                 'Function code=%d %s not implemented',

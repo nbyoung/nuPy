@@ -9,39 +9,39 @@ class RequestHandler(_pdu.RequestHandler):
     def __init__(self, dataModel, logCallback=lambda _: None):
         super().__init__(dataModel, logCallback)
 
-    async def ReadMultipleHoldingRegisters(self, dataModel, fromRegion):
-        async with dataModel.status.getter as getter:
+    async def ReadMultipleHoldingRegisters(self, fromRegion):
+        async with self._dataModel.status.getter as getter:
             return struct.pack(
                 '>B%dH' % fromRegion.count,
                 fromRegion.count * 2,
-                *[dataModel.holdingRead(getter, fromRegion.address + i)
+                *[self._dataModel.holdingRead(getter, fromRegion.address + i)
                   for i in range(fromRegion.count)]
             )
 
     async def WriteSingleHoldingRegister(
-            self, dataModel, toAddress, value
+            self, toAddress, value
     ):
-        async with dataModel.status.setter as setter:
-            dataModel.holdingWrite(setter, toAddress, value)
+        async with self._dataModel.status.setter as setter:
+            self._dataModel.holdingWrite(setter, toAddress, value)
             return struct.pack('>HH', toAddress, value)
 
     async def WriteMultipleHoldingRegisters(
-            self, dataModel, toRegion, values
+            self, toRegion, values
     ):
-        async with dataModel.status.setter as setter:
+        async with self._dataModel.status.setter as setter:
             for i in range(toRegion.count):
-                dataModel.holdingWrite(setter, toRegion.address + i, values[i])
+                self._dataModel.holdingWrite(setter, toRegion.address + i, values[i])
             return struct.pack('>HH', toRegion.address, toRegion.count)
 
     async def ReadWriteMultipleRegisters(
-            self, dataModel, fromRegion, toRegion, values
+            self, fromRegion, toRegion, values
     ):
-        async with dataModel.status.setter as setter:
+        async with self._dataModel.status.setter as setter:
             for i in range(toRegion.count):
-                dataModel.holdingWrite(setter, toRegion.address + i, values[i])
+                self._dataModel.holdingWrite(setter, toRegion.address + i, values[i])
             return struct.pack(
                 '>B%dH' % fromRegion.count,
                 fromRegion.count * 2,
-                *[dataModel.holdingRead(setter, fromRegion.address + i)
+                *[self._dataModel.holdingRead(setter, fromRegion.address + i)
                   for i in range(fromRegion.count)]
             )
