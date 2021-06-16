@@ -21,13 +21,14 @@ def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect(("192.168.1.11", 502))
 
-    adu = pdu.Request(
+    requestADU = pdu.Request(
         lambda functionCode, pduBytes:
         tcp.ADU(next(TRANSACTION), PROTOCOL, 255, functionCode, pduBytes)
-    ).ReadMultipleHoldingRegisters(0, 1)
-    s.sendall(adu.toBytes())
-    print(adu.toBytes())
-    print(s.recv(256))
+    ).ReadMultipleHoldingRegisters(0, 5)
+    s.sendall(requestADU.toBytes())
+    responseADU = tcp.ADU.fromBytes(s.recv(256))
+    print(responseADU.transaction, responseADU.address)
+    print(responseADU.pdu.functionCode, responseADU.pdu.bytes)
     s.close()
     
 main()

@@ -20,6 +20,12 @@ class ADU(adu.ADU):
         self._transaction = transaction
         self._protocol = protocol
 
+    @property
+    def transaction(self): return self._transaction
+
+    @property
+    def protocol(self): return self._protocol
+
     def toBytes(self):
         length = len(self._pduBytes) + struct.calcsize('BB')
         return struct.pack(
