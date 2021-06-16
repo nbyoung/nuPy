@@ -1,8 +1,10 @@
 # warning:      Untested.
 
-from . import _adu
+import struct
 
-class ADU(_adu.ADU):
+from . import adu, pdu
+
+class ADU(adu.ADU):
 
     _head       = '>BB'
     _crc        = '>H'
@@ -20,6 +22,17 @@ class ADU(_adu.ADU):
                 'CRC error: address=%d, function=%d' % (address, function)
             )
         return ADU(address, function, pduBytes)
+
+    def __init__(self, address, function, pduBytes):
+        self._address = address
+        self._function = function
+        self._pduBytes = pduBytes
+
+    @property
+    def address(self): return self._address
+
+    @property
+    def pdu(self): return pdu.PDU(self._function, self._pduBytes)
 
     def toBytes(self):
         length = len(self._pduBytes) + struct.calcsize('BB')

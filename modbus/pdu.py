@@ -1,8 +1,19 @@
 import struct
 
-from . import _pdu
+from . import codes, _pdu
 
 class PDU(_pdu.PDU): pass
+
+class Request:
+
+    def __init__(self, wrapper=lambda code, bytes_: PDU(code, bytes_)):
+        self._wrapper = wrapper
+
+    def ReadMultipleHoldingRegisters(self, address, count):
+        return self._wrapper(
+            codes.Function.ReadMultipleHoldingRegisters,
+            struct.pack('>HH', address, count)
+        )
 
 class RequestHandler(_pdu.RequestHandler):
 

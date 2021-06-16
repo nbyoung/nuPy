@@ -9,6 +9,7 @@ import tmp
 
 import modbus
 from modbus import data, pdu, tcp, slave
+from modbus.tcp.slave import Service as TCPService
 import lan
 
 class OperatingService(service.Service):
@@ -44,7 +45,7 @@ async def _amain(port):
         ).add(
             lan.Service(lanStatus)
         ).add(
-            tcp.SlaveService(slave.Handler(tcp.ADU, slave_), dataModel.status, port)
+            TCPService(slave.Handler(tcp.ADU, slave_), dataModel.status, port)
         ).add(
             ProcessService(dataModel.status)
         ).add(

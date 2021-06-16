@@ -10,6 +10,8 @@ exports:
   - demo_configuration
   - demo_service
   - demo_lan
+  - demo_modbus_rtu_master
+  - demo_modbus_tcp_master
   - demo_modbus_tcp_slave
   - demo_mws2
   - demo_web
@@ -49,6 +51,14 @@ parts:
   - name:       demo_lan
     path:       "demo_lan.py"
     uses:       [ tmp, logger, configuration, service, lan, ipv4 ]
+
+  - name:       demo_modbus_rtu_master
+    path:       "demo_modbus_rtu_master.py"
+    uses:       [ modbus ]
+
+  - name:       demo_modbus_tcp_master
+    path:       "demo_modbus_tcp_master.py"
+    uses:       [ modbus ]
 
   - name:       demo_modbus_tcp_slave
     path:       "demo_modbus_tcp_slave.py"
